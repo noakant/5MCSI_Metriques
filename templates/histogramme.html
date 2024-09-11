@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Histogramme des Températures de Tawarano</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Évolution des Températures à Tawarano</h1>
+    <canvas id="temperatureChart" width="800" height="400"></canvas>
+    <script>
+        // Données JSON fournies
+        const data = {
+            "cod": "200",
+            "message": 0.0082,
+            "cnt": 40,
+            "list": [
+                {"dt": 1485799200, "main": {"temp": 283.76}, "dt_txt": "2017-01-30 18:00:00"},
+                {"dt": 1485810000, "main": {"temp": 282.56}, "dt_txt": "2017-01-30 21:00:00"},
+                {"dt": 1485820800, "main": {"temp": 282.3}, "dt_txt": "2017-01-31 00:00:00"},
+                {"dt": 1485831600, "main": {"temp": 282.27}, "dt_txt": "2017-01-31 03:00:00"},
+                {"dt": 1485842400, "main": {"temp": 282.656}, "dt_txt": "2017-01-31 06:00:00"},
+                {"dt": 1485853200, "main": {"temp": 282.783}, "dt_txt": "2017-01-31 09:00:00"},
+                {"dt": 1485864000, "main": {"temp": 283.335}, "dt_txt": "2017-01-31 12:00:00"},
+                {"dt": 1485874800, "main": {"temp": 284.657}, "dt_txt": "2017-01-31 15:00:00"},
+                {"dt": 1485885600, "main": {"temp": 284.095}, "dt_txt": "2017-01-31 18:00:00"},
+                {"dt": 1485896400, "main": {"temp": 283.211}, "dt_txt": "2017-01-31 21:00:00"},
+                {"dt": 1485907200, "main": {"temp": 284.179}, "dt_txt": "2017-02-01 00:00:00"},
+                {"dt": 1485918000, "main": {"temp": 284.829}, "dt_txt": "2017-02-01 03:00:00"},
+                {"dt": 1485928800, "main": {"temp": 285.702}, "dt_txt": "2017-02-01 06:00:00"},
+                {"dt": 1485939600, "main": {"temp": 285.494}, "dt_txt": "2017-02-01 09:00:00"},
+                {"dt": 1485950400, "main": {"temp": 285.16}, "dt_txt": "2017-02-01 12:00:00"},
+                {"dt": 1485961200, "main": {"temp": 284.161}, "dt_txt": "2017-02-01 15:00:00"},
+                {"dt": 1485972000, "main": {"temp": 282.63}, "dt_txt": "2017-02-01 18:00:00"},
+                {"dt": 1485982800, "main": {"temp": 281.856}, "dt_txt": "2017-02-01 21:00:00"},
+                {"dt": 1485993600, "main": {"temp": 281.978}, "dt_txt": "2017-02-02 00:00:00"},
+                {"dt": 1486004400, "main": {"temp": 283.706}, "dt_txt": "2017-02-02 03:00:00"},
+                {"dt": 1486015200, "main": {"temp": 285.125}, "dt_txt": "2017-02-02 06:00:00"},
+                {"dt": 1486026000, "main": {"temp": 284.755}, "dt_txt": "2017-02-02 09:00:00"},
+                {"dt": 1486036800, "main": {"temp": 283.765}, "dt_txt": "2017-02-02 12:00:00"},
+                {"dt": 1486047600, "main": {"temp": 283.809}, "dt_txt": "2017-02-02 15:00:00"},
+                {"dt": 1486058400, "main": {"temp": 283.788}, "dt_txt": "2017-02-02 18:00:00"},
+                {"dt": 1486069200, "main": {"temp": 283.569}, "dt_txt": "2017-02-02 21:00:00"},
+                {"dt": 1486080000, "main": {"temp": 284.11}, "dt_txt": "2017-02-03 00:00:00"},
+                {"dt": 1486090800, "main": {"temp": 285.034}, "dt_txt": "2017-02-03 03:00:00"},
+                {"dt": 1486101600, "main": {"temp": 286.158}, "dt_txt": "2017-02-03 06:00:00"},
+                {"dt": 1486112400, "main": {"temp": 286.138}, "dt_txt": "2017-02-03 09:00:00"},
+                {"dt": 1486123200, "main": {"temp": 285.952}, "dt_txt": "2017-02-03 12:00:00"},
+                {"dt": 1486134000, "main": {"temp": 285.828}, "dt_txt": "2017-02-03 15:00:00"},
+                {"dt": 1486144800, "main": {"temp": 285.168}, "dt_txt": "2017-02-03 18:00:00"},
+                {"dt": 1486155600, "main": {"temp": 283.818}, "dt_txt": "2017-02-03 21:00:00"},
+                {"dt": 1486166400, "main": {"temp": 283.157}, "dt_txt": "2017-02-04 00:00:00"},
+                {"dt": 1486177200, "main": {"temp": 283.494}, "dt_txt": "2017-02-04 03:00:00"},
+                {"dt": 1486188000, "main": {"temp": 285.263}, "dt_txt": "2017-02-04 06:00:00"},
+                {"dt": 1486198800, "main": {"temp": 285.927}, "dt_txt": "2017-02-04 09:00:00"},
+                {"dt": 1486209600, "main": {"temp": 285.906}, "dt_txt": "2017-02-04 12:00:00"},
+                {"dt": 1486220400, "main": {"temp": 285.51}, "dt_txt": "2017-02-04 15:00:00"}
+            ],
+            "city": {"id": 1907296, "name": "Tawarano", "coord": {"lat": 35.0164, "lon": 139.0077}, "country": "none"}
+        };
+
+        // Extraire les dates et températures
+        const labels = data.list.map(item => item.dt_txt);
+        const temperatures = data.list.map(item => item.main.temp - 273.15); // Convertir Kelvin en Celsius
+
+        // Créer le graphique
+        const ctx = document.getElementById('temperatureChart').getContext('2d');
+        const temperatureChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Température (°C)',
+                    data: temperatures,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Date et Heure'
+                        },
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Température (°C)'
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
